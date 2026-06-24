@@ -7,7 +7,7 @@ import os
 app = Flask(__name__)
 
 # Cargar el pipeline guardado
-pipeline = joblib.load('pipeline_mejor.pkl')
+pipeline = joblib.load('pipeline_mejor_v2.pkl')
 
 # Columnas que espera el modelo
 COLUMNAS = ['sqft_living', 'grade', 'condition', 'long', 'zipcode']
