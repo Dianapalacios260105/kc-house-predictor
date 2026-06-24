@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predicción de Precio de Casa - King County</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            max-width: 620px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2E75B6, #1a4a7a);
+            color: white;
+            padding: 32px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 0.9rem;
+            opacity: 0.85;
+            line-height: 1.5;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 0.78rem;
+            margin-top: 10px;
+        }
+
+        .form-section {
+            padding: 36px 40px;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 6px;
+            font-size: 0.92rem;
+        }
+
+        .hint {
+            display: block;
+            font-size: 0.78rem;
+            color: #777;
+            font-weight: 400;
+            margin-bottom: 6px;
+        }
+
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color 0.3s;
+            color: #333;
+            background: #fafafa;
+        }
+
+        input[type="number"]:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #2E75B6;
+            background: white;
+        }
+
+        .btn-predict {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #2E75B6, #1a4a7a);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-predict:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(46,117,182,0.4);
+        }
+
+        .resultado {
+            margin: 24px 40px;
+            padding: 24px;
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border-left: 5px solid #2e7d32;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .resultado p {
+            color: #1b5e20;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+        }
+
+        .resultado .precio {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1b5e20;
+        }
+
+        .error-box {
+            margin: 24px 40px;
+            padding: 20px;
+            background: #fff3f3;
+            border-left: 5px solid #c62828;
+            border-radius: 8px;
+        }
+
+        .error-box p {
+            color: #c62828;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .error-box ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .error-box ul li {
+            color: #b71c1c;
+            font-size: 0.88rem;
+            padding: 4px 0;
+        }
+
+        .error-box ul li::before {
+            content: "⚠ ";
+        }
+
+        .footer {
+            background: #f5f5f5;
+            padding: 16px 40px;
+            text-align: center;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .footer p {
+            font-size: 0.78rem;
+            color: #888;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 500px) {
+            .row { grid-template-columns: 1fr; }
+            .header, .form-section { padding: 24px; }
+            .resultado, .error-box { margin: 16px 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <div class="header">
+            <h1>🏡 Predicción de Precio de Casa</h1>
+            <p>Ingresa las características de la propiedad para obtener una estimación del precio de venta en el condado de King, Washington.</p>
+            <span class="badge">Modelo: Gradient Boosting | R² = 0.8225</span>
+        </div>
+
+        {% if prediccion %}
+        <div class="resultado">
+            <p>Precio estimado de la propiedad:</p>
+            <div class="precio">{{ prediccion }}</div>
+            <p style="margin-top:8px; font-size:0.82rem;">USD — basado en las características ingresadas</p>
+        </div>
+        {% endif %}
+
+        {% if error %}
+        <div class="error-box">
+            <p>Por favor corrige los siguientes errores:</p>
+            <ul>
+                {% for msg in mensajes_error %}
+                <li>{{ msg }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div class="form-section">
+            <form action="/predict" method="POST">
+
+                <div class="form-group">
+                    <label for="sqft_living">Superficie habitable</label>
+                    <span class="hint">Pies cuadrados del interior de la vivienda (ej. 1800)</span>
+                    <input type="number" id="sqft_living" name="sqft_living" 
+                           placeholder="Ej: 1800" min="1" step="1" required
+                           value="{{ sqft_living if sqft_living else '' }}">
+                </div>
+
+                <div class="row">
+                    <div class="form-group">
+                        <label for="grade">Grado de calidad</label>
+                        <span class="hint">Calidad de construcción del 1 al 13</span>
+                        <input type="number" id="grade" name="grade"
+                               placeholder="Ej: 7" min="1" max="13" step="1" required
+                               value="{{ grade if grade else '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="condition">Condición</label>
+                        <span class="hint">Estado de la propiedad del 1 al 5</span>
+                        <input type="number" id="condition" name="condition"
+                               placeholder="Ej: 3" min="1" max="5" step="1" required
+                               value="{{ condition if condition else '' }}">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group">
+                        <label for="long">Longitud geográfica</label>
+                        <span class="hint">Coordenada (ej. -122.23)</span>
+                        <input type="number" id="long" name="long"
+                               placeholder="Ej: -122.23" step="0.0001" required
+                               value="{{ long_val if long_val else '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="zipcode">Código postal</label>
+                        <span class="hint">ZIP de King County (ej. 98103)</span>
+                        <input type="number" id="zipcode" name="zipcode"
+                               placeholder="Ej: 98103" min="98001" max="98199" step="1" required
+                               value="{{ zipcode if zipcode else '' }}">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-predict">
+                    Predecir precio 🏠
+                </button>
+
+            </form>
+        </div>
+
+        <div class="footer">
+            <p>Proyecto de Regresión con CRISP-DM · Diana Itzel Palacios Hernández · UTHH 2025</p>
+            <p>Dataset: King County House Sales · Algoritmo: Gradient Boosting Regressor</p>
+        </div>
+
+    </div>
+</body>
+</html>
